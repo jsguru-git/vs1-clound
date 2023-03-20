@@ -28,6 +28,7 @@ Template.workorderlist.onCreated(function() {
 
 
     templateObject.getDataTableList = function(data){
+        console.log('data ~~~~~~~~~~~~~', data);
         let dataList = [
             data.fields.ID ,
             data.fields.OrderNumber || '',
@@ -39,7 +40,8 @@ Template.workorderlist.onCreated(function() {
             // moment(data.fields.DueDate).format("DD/MM/YYYY") || '',
             data.fields.ProductName || '',
             data.fields.Quantity || '',
-            data.fields.Comment || '',
+            // data.fields.Comment || '',
+            data.fields.Status || '',
         ];
         return dataList;
       }
@@ -53,7 +55,8 @@ Template.workorderlist.onCreated(function() {
         { index: 5, label: "Due Date", class: "colDueDate", width: "200", active: true, display: true },
         { index: 6, label: "Product", class: "colProductName", width: "120", active: true, display: true },
         { index: 7, label: "Amount", class: "colAmount", width: "80", active: true, display: true },
-        { index: 8, label: "Comments", class: "colComment", width: "", active: true, display: true },
+        { index: 8, label: "Status", class: "colStatus", width: "", active: true, display: true },
+        // { index: 8, label: "Comments", class: "colComment", width: "", active: true, display: true },
     ];
     templateObject.tableheaderrecords.set(headerStructure)
 })
