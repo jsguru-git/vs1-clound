@@ -164,7 +164,19 @@ Template.invoicelist.onRendered(function () {
       );
     }
   }
-  tableResize();
+
+  $('#tblInvoicelist tbody').on( 'click', 'tr', function () {
+      var listData = $(this).closest('tr').find('.colSalesNo').text()
+      var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+      if(listData){
+        if(checkDeleted == "Deleted"){
+          swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+        }else{
+          FlowRouter.go('/invoicecard?id=' + listData);
+        }
+      }
+
+  });
 
   templateObject.initPage = async (refresh = false) => {
     LoadingOverlay.show();
@@ -173,7 +185,7 @@ Template.invoicelist.onRendered(function () {
 
     LoadingOverlay.hide();
   }
-  templateObject.initPage();
+  // templateObject.initPage();
 });
 
 Template.invoicelist.events({
@@ -394,138 +406,7 @@ Template.invoicelist.events({
   "click #btnInvoiceBOList": function (event) {
     FlowRouter.go("/invoicelistBO");
   },
-  "click .chkDatatable": function (event) {
-    var columns = $("#tblInvoicelist th");
-    let columnDataValue = $(event.target)
-      .closest("div")
-      .find(".divcolumn")
-      .text();
 
-    $.each(columns, function (i, v) {
-      let className = v.classList;
-      let replaceClass = className[1];
-
-      if (v.innerText == columnDataValue) {
-        if ($(event.target).is(":checked")) {
-          $("." + replaceClass + "").css("display", "table-cell");
-          $("." + replaceClass + "").css("padding", ".75rem");
-          $("." + replaceClass + "").css("vertical-align", "top");
-        } else {
-          $("." + replaceClass + "").css("display", "none");
-        }
-      }
-    });
-  },
-
-  // custom field displaysettings
-  "click .resetTable": function (event) {
-    let templateObject = Template.instance();
-    let reset_data = templateObject.reset_data.get();
-    templateObject.showCustomFieldDisplaySettings(reset_data);
-
-    reset_data = reset_data.filter(redata => redata.display);
-    $(".customDisplaySettings").each(function (index) {
-      let $tblrow = $(this);
-      $tblrow.find(".divcolumn").text(reset_data[index].label);
-      $tblrow
-        .find(".custom-control-input")
-        .prop("checked", reset_data[index].active);
-
-        let title = $("#tblInvoicelist").find("th").eq(index+1);
-        $(title).html(reset_data[index].label);
-
-      if (reset_data[index].active) {
-        $('.col' + reset_data[index].class).addClass('showColumn');
-        $('.col' + reset_data[index].class).removeClass('hiddenColumn');
-      } else {
-        $('.col' + reset_data[index].class).addClass('hiddenColumn');
-        $('.col' + reset_data[index].class).removeClass('showColumn');
-      }
-      $(".rngRange" + reset_data[index].class).val(reset_data[index].width);
-    });
-  },
-
-  // custom field displaysettings
-  "click .saveTable": async function (event) {
-    let lineItems = [];
-    $(".fullScreenSpin").css("display", "inline-block");
-
-    $(".customDisplaySettings").each(function (index) {
-      var $tblrow = $(this);
-      var fieldID = $tblrow.attr("custid") || 0;
-      var colTitle = $tblrow.find(".divcolumn").text() || "";
-      var colWidth = $tblrow.find(".custom-range").val() || 0;
-      var colthClass = $tblrow.find(".divcolumn").attr("valueupdate") || "";
-      var colHidden = false;
-      if ($tblrow.find(".custom-control-input").is(":checked")) {
-        colHidden = true;
-      } else {
-        colHidden = false;
-      }
-      let lineItemObj = {
-        index: parseInt(fieldID),
-        label: colTitle,
-        active: colHidden,
-        width: parseInt(colWidth),
-        class: colthClass,
-        display: true
-      };
-
-      lineItems.push(lineItemObj);
-    });
-
-    let templateObject = Template.instance();
-    let reset_data = templateObject.reset_data.get();
-    reset_data = reset_data.filter(redata => redata.display == false);
-    lineItems.push(...reset_data);
-    lineItems.sort((a,b) => a.index - b.index);
-
-    try {
-      let erpGet = erpDb();
-      let tableName = "tblInvoicelist";
-      let employeeId = parseInt(localStorage.getItem('mySessionEmployeeLoggedID'))||0;
-      let added = await sideBarService.saveNewCustomFields(erpGet, tableName, employeeId, lineItems);
-      $(".fullScreenSpin").css("display", "none");
-      if(added) {
-        sideBarService.getNewCustomFieldsWithQuery(parseInt(localStorage.getItem('mySessionEmployeeLoggedID')),'').then(function (dataCustomize) {
-            addVS1Data('VS1_Customize', JSON.stringify(dataCustomize));
-        });
-          swal({
-            title: 'SUCCESS',
-            text: "Display settings is updated!",
-            type: 'success',
-            showCancelButton: false,
-            confirmButtonText: 'OK'
-          }).then((result) => {
-              if (result.value) {
-                 $('#myModal2').modal('hide');
-              }
-          });
-      } else {
-        swal("Something went wrong!", "", "error");
-      }
-    } catch (error) {
-      $(".fullScreenSpin").css("display", "none");
-      swal("Something went wrong!", "", "error");
-    }
-  },
-
-
-  'change .custom-range': function(event) {
-    let range = $(event.target).val();
-    let colClassName = $(event.target).attr("valueclass");
-    $('.col' + colClassName).css('width', range);
-  },
-  'click .custom-control-input': function(event) {
-    let colClassName = $(event.target).attr("id");
-    if ($(event.target).is(':checked')) {
-      $('.col' + colClassName).addClass('showColumn');
-      $('.col' + colClassName).removeClass('hiddenColumn');
-    } else {
-      $('.col' + colClassName).addClass('hiddenColumn');
-      $('.col' + colClassName).removeClass('showColumn');
-    }
-  },
 
   // 'click .chkSaleDate': function(event) {
   //   if ($(event.target).is(':checked')) {
