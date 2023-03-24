@@ -28,7 +28,6 @@ Template.workorderlist.onCreated(function() {
 
 
     templateObject.getDataTableList = function(data){
-        console.log('data ~~~~~~~~~~~~~', data);
         let dataList = [
             data.fields.ID ,
             data.fields.OrderNumber || '',
