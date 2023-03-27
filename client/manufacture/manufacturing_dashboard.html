@@ -220,7 +220,20 @@
 
                     </style>
                     
-                    {{> transaction_list tablename = "tblWorkorderList" }}
+                    <!-- {{> transaction_list tablename = "tblWorkorderList" }} -->
+                    {{>datatablelist
+                        tablename="tblWorkorderList"
+                        indexeddbname = 'TVS1Workorder'
+                        tableheaderrecords = tableheaderrecords
+                        exportfilename = 'Work Order List'
+                        istransaction = true
+                        apiParams= apiParams
+                        datahandler = datahandler
+                        lowercaseDataName='tvs1workorder'
+                        exIndexDBName = 'tvs1workorder'
+                        exdatahandler = exDataHandler
+                        orderby = '[[ 0, "desc" ],[ 1, "desc" ]]'
+                    }}
                 </div>
             </div>
     </div>
