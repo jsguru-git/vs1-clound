@@ -46,16 +46,15 @@ Template.workorderlist.onCreated(function() {
       }
 
     let headerStructure = [
-        { index: 0, label: "#ID", class: "colID", width: "0", active: false, display: true },
-        { index: 1, label: "SalesOrderID", class: "colOrderNumber", width: "80", active: true, display: true },
-        { index: 2, label: "Customer", class: "colCustomer", width: "80", active: true, display: true },
+        { index: 0, label: "#ID", class: "colID", width: "10", active: false, display: true },
+        { index: 1, label: "SalesOrderID", class: "colOrderNumber", width: "100", active: true, display: true },
+        { index: 2, label: "Customer", class: "colCustomer", width: "120", active: true, display: true },
         { index: 3, label: "PO Number", class: "colPONumber", width: "100", active: true, display: true },
         { index: 4, label: "Sale Date", class: "colSaleDate", width: "200", active: true, display: true },
         { index: 5, label: "Due Date", class: "colDueDate", width: "200", active: true, display: true },
-        { index: 6, label: "Product", class: "colProductName", width: "120", active: true, display: true },
-        { index: 7, label: "Amount", class: "colAmount", width: "80", active: true, display: true },
-        { index: 8, label: "Status", class: "colStatus", width: "", active: true, display: true },
-        // { index: 8, label: "Comments", class: "colComment", width: "", active: true, display: true },
+        { index: 6, label: "Product", class: "colProductName", width: "200", active: true, display: true },
+        { index: 7, label: "Amount", class: "colAmount", width: "100", active: true, display: true },
+        { index: 8, label: "Status", class: "colStatus", width: "120", active: true, display: true },
     ];
     templateObject.tableheaderrecords.set(headerStructure)
 })
