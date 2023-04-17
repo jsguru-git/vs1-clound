@@ -138,7 +138,6 @@ Template.newsidenav.onCreated(function () {
     if (data.tpreference && data.tpreference.length > 0) {
       const latestAction = data.tpreference[data.tpreference.length - 1];
       const menuItem = JSON.parse(latestAction.fields.PrefValue);
-      console.log(menuItem.Location);
       if (menuItem.Location === "TopMenu") {
         templateObject.sideBarPositionClass.set('top');
         $('#sidebar').addClass('top');
@@ -3019,6 +3018,43 @@ Template.newsidenav.events({
     let templateObject = Template.instance();
     templateObject.getSetSideNavFocus();
   },
+
+  'click #sidenavstpayroll': function (event) {
+    event.preventDefault();
+    FlowRouter.go('/singletouch');
+    let templateObject = Template.instance();
+    templateObject.getSetSideNavFocus();
+  },
+
+  'click #sidenavpayrollleave': function (event) {
+    event.preventDefault();
+    FlowRouter.go('/payrollleave');
+    let templateObject = Template.instance();
+    templateObject.getSetSideNavFocus();
+  },
+
+  'click #sidenavaddpayrun': function (event) {
+    event.preventDefault();
+    FlowRouter.go('/payrolloverview?modalId=newPayRunModal');
+    let templateObject = Template.instance();
+    templateObject.getSetSideNavFocus();
+  },
+
+  'click #sidenavClockonReport': function (event) {
+    event.preventDefault();
+    FlowRouter.go('/clockonreport');
+    let templateObject = Template.instance();
+    templateObject.getSetSideNavFocus();
+  },
+
+  'click #sidenavEmployeeClockedStatus': function (event) {
+    event.preventDefault();
+    FlowRouter.go('/employeeclockstatus');
+    let templateObject = Template.instance();
+    templateObject.getSetSideNavFocus();
+  },
+
+
   'click #sidenavtimeclock': function (event) {
     // if (FlowRouter.current().path == "/payrolloverview") {
     //   $("#btnClockOnOff").trigger("click");
@@ -3026,10 +3062,15 @@ Template.newsidenav.events({
     //   window.open('/payrolloverview#clockOnOff', '_self');
     // }
     event.preventDefault();
-    FlowRouter.go('/clockOnOff');
+    if (FlowRouter.current().path == "/payrolloverview") {
+      FlowRouter.go('/clockonoff');
+    } else {
+      FlowRouter.go('/payrolloverview?modalId=clockonoff');
+    }    
     let templateObject = Template.instance();
     templateObject.getSetSideNavFocus();
   },
+  
   'click #sidenavseedtosale': function (event) {
     $('.accountsLi').addClass('opacityNotActive');
     $('.appointmentsLi').addClass('opacityNotActive');
