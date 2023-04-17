@@ -172,9 +172,10 @@ Template.fixedassetcard.onRendered(function () {
   let currentAssetID = parseInt(FlowRouter.current().queryParams.assetId || '0');
   templateObject.currentAssetID.set(currentAssetID);
   if (currentAssetID > 0) {
-    getVS1Data("TFixedAssets").then(function (dataObject) {
-      if (dataObject.length == 0) {
-        fixedAssetService.getTFixedAssetsList().then(function (data) {
+    getVS1Data("TFixedAssetsList").then(function (dataObject) {
+      if (dataObject.length === 0) {
+        fixedAssetService.getTFixedAssetsList(25, 1).then(function (data) {
+          addVS1Data('TFixedAssetsList', JSON.stringify(data))
           findFixedAssetByID(data, currentAssetID);
         });
       }
@@ -183,20 +184,17 @@ Template.fixedassetcard.onRendered(function () {
         findFixedAssetByID(workData, currentAssetID);
       }
     }).catch(function (err) {
-      // fixedAssetService.getTFixedAssetsList().then(function (data) {
-      //   console.log('TFixedAssets InoDDb');
-      //   addVS1Data('TFixedAssets', JSON.stringify(data));
-      //   findFixedAssetByID(data, currentAsset);
-      // }).catch(function (err) {
-      //   $(".fullScreenSpin").css("display", "none");
-      // });
+      fixedAssetService.getTFixedAssetsList(25, 1).then(function (data) {
+        addVS1Data('TFixedAssetsList', JSON.stringify(data))
+        findFixedAssetByID(data, currentAssetID);
+      });
     });
   }
 
-  function findFixedAssetByID(data, assetID) { 
-    const assetData = data.tfixedassets.filter((asset) => asset.fields.ID == assetID);
+  function findFixedAssetByID(data, assetID) {
+    const assetData = data.tfixedassetslist.filter((asset) => asset.AssetID == assetID);
     if (assetData.length > 0) {
-      const assetInfo = assetData[0].fields;
+      const assetInfo = assetData[0];
       initializeCard(assetInfo);
     }
   }
@@ -296,19 +294,23 @@ Template.fixedassetcard.onRendered(function () {
     $("#edtDepreciationType").val(accountName);
 
     templateObject.edtCostAssetAccount.set(assetInfo.FixedAssetCostAccountID);
-    accountName = allAccountsData.find((account) => account.id == assetInfo.FixedAssetCostAccountID)['accountName'];
+    let searchAccount = allAccountsData.find((account) => account.id == assetInfo.FixedAssetCostAccountID);
+    accountName = searchAccount ? searchAccount['accountName'] : '';
     $("#edtCostAssetAccount").val(accountName);
 
     templateObject.editBankAccount.set(assetInfo.CUSTFLD6); // FixedAssetBankAccountID
-    accountName = allAccountsData.find((account) => account.id == assetInfo.CUSTFLD6)['accountName'];
+    searchAccount = allAccountsData.find((account) => account.id == assetInfo.CUSTFLD6);
+    accountName = searchAccount ? searchAccount['accountName'] : '';
     $("#editBankAccount").val(accountName);
 
     templateObject.edtDepreciationAssetAccount.set(assetInfo.FixedAssetDepreciationAccountID); //FixedAssetDepreciationExpenseAccountID
-    accountName = allAccountsData.find((account) => account.id == assetInfo.FixedAssetDepreciationAccountID)['accountName'];
+    searchAccount = allAccountsData.find((account) => account.id == assetInfo.FixedAssetDepreciationAccountID);
+    accountName = searchAccount ? searchAccount['accountName'] : '';
     $("#edtDepreciationAssetAccount").val(accountName);
 
     templateObject.edtDepreciationExpenseAccount.set(assetInfo.FixedAssetDepreciationAssetAccountID);
-    accountName = allAccountsData.find((account) => account.id == assetInfo.FixedAssetDepreciationAssetAccountID)['accountName'];
+    searchAccount = allAccountsData.find((account) => account.id == assetInfo.FixedAssetDepreciationAssetAccountID);
+    accountName = searchAccount ? searchAccount['accountName'] : '';
     $("#edtDepreciationExpenseAccount").val(accountName);
 
     // -----------------Depreciation Information-----------------
@@ -317,19 +319,23 @@ Template.fixedassetcard.onRendered(function () {
     $("#edtDepreciationType2").val(accountName);
 
     templateObject.edtCostAssetAccount2.set(assetInfo.FixedAssetCostAccountID2);
-    accountName = allAccountsData.find((account) => account.id == assetInfo.FixedAssetCostAccountID2)['accountName'];
+    searchAccount = allAccountsData.find((account) => account.id == assetInfo.FixedAssetCostAccountID2);
+    accountName = searchAccount ? searchAccount['accountName'] : '';
     $("#edtCostAssetAccount2").val(accountName);
 
     templateObject.editBankAccount2.set(assetInfo.CUSTFLD8); // FixedAssetBankAccountID
-    accountName = allAccountsData.find((account) => account.id == assetInfo.CUSTFLD8)['accountName'];
+    searchAccount = allAccountsData.find((account) => account.id == assetInfo.CUSTFLD8);
+    accountName = searchAccount ? searchAccount['accountName'] : '';
     $("#editBankAccount2").val(accountName);
 
     templateObject.edtDepreciationAssetAccount2.set(assetInfo.FixedAssetDepreciationAccountID2); //FixedAssetDepreciationExpenseAccountID
-    accountName = allAccountsData.find((account) => account.id == assetInfo.FixedAssetDepreciationAccountID2)['accountName'];
+    searchAccount = allAccountsData.find((account) => account.id == assetInfo.FixedAssetDepreciationAccountID2);
+    accountName = searchAccount ? searchAccount['accountName'] : '';
     $("#edtDepreciationAssetAccount2").val(accountName);
 
     templateObject.edtDepreciationExpenseAccount2.set(assetInfo.FixedAssetDepreciationAssetAccountID2);
-    accountName = allAccountsData.find((account) => account.id == assetInfo.FixedAssetDepreciationAssetAccountID2)['accountName'];
+    searchAccount = allAccountsData.find((account) => account.id == assetInfo.FixedAssetDepreciationAssetAccountID2);
+    accountName = searchAccount ? searchAccount['accountName'] : '';
     $("#edtDepreciationExpenseAccount2").val(accountName);
 
     $('select#edtSalvageType').val(assetInfo.SalvageType);
@@ -341,7 +347,7 @@ Template.fixedassetcard.onRendered(function () {
     $('input#edtInsuranceByName').val(assetInfo.CUSTFLD7);
     templateObject.edtInsuranceById.set(assetInfo.InsuredBy);
 
-    let planList = assetInfo.fixedassetsdepreciationdetails, depPlanList = [];
+    let planList = assetInfo.fixedassetsdepreciationdetails ? assetInfo.fixedassetsdepreciationdetails : [], depPlanList = [];
     for (let i = 0; i < planList.length; i++) {
       const info = planList[i].fields;
       const plan = {
@@ -354,7 +360,7 @@ Template.fixedassetcard.onRendered(function () {
     }
     templateObject.deprecitationPlans.set(depPlanList);
 
-    planList = assetInfo.fixedassetsdepreciationdetails;
+    planList = assetInfo.fixedassetsdepreciationdetails ? assetInfo.fixedassetsdepreciationdetails : [];
     depPlanList = [];
 
     for (i = 0; i < planList.length; i++) {
@@ -384,7 +390,7 @@ Template.fixedassetcard.events({
   "click button.btnSave": function() {
     const templateObject = Template.instance();
     const depPlans = templateObject.deprecitationPlans.get(),
-        depPlans2 = templateObject.deprecitationPlans.get(), 
+        depPlans2 = templateObject.deprecitationPlans.get(),
         planList = new Array(), planList2 = new Array();
     for (let i = 0; i < depPlans.length; i++) {
       const plan = {
@@ -403,7 +409,7 @@ Template.fixedassetcard.events({
         type: 'TFixedAssetsDepreciationDetails2',
         fields: {
           "Year": depPlans2[i].year.toString(),
-          "Depreciation": depPldepPlans2ans[i].depreciation,
+          "Depreciation": depPlans2[i].depreciation,
           "TotalDepreciation": depPlans2[i].accDepreciation,
           "BookValue": depPlans2[i].bookValue
         }
@@ -443,8 +449,8 @@ Template.fixedassetcard.events({
         DepreciationOption2: templateObject.edtDepreciationType2.get(),
         FixedAssetCostAccountID: templateObject.edtCostAssetAccount.get(),
         FixedAssetCostAccountID2: templateObject.edtCostAssetAccount2.get(),
-        fixedassetsdepreciationdetails: planList,
-        fixedassetsdepreciationdetails2: planList2,
+        // fixedassetsdepreciationdetails: planList,
+        // fixedassetsdepreciationdetails2: planList2,
         CUSTFLD6: templateObject.editBankAccount.get().toString(),
         CUSTFLD8: templateObject.editBankAccount2.get().toString(),
         FixedAssetDepreciationAccountID: templateObject.edtDepreciationAssetAccount.get(),
@@ -473,8 +479,8 @@ Template.fixedassetcard.events({
     });
     if (templateObject.currentAssetID.get() == 0) {
       fixedAssetService.saveTFixedAsset(newFixedAsset).then((data) => {
-        fixedAssetService.getTFixedAssetsList().then(function (data) {
-          addVS1Data('TFixedAssets', JSON.stringify(data));
+        fixedAssetService.getTFixedAssetsList(25, 1).then(function (data) {
+          addVS1Data('TFixedAssetsList', JSON.stringify(data));
         }).catch(function (err) {
           $(".fullScreenSpin").css("display", "none");
         });
@@ -486,8 +492,8 @@ Template.fixedassetcard.events({
     } else {
       newFixedAsset.fields['ID'] = templateObject.currentAssetID.get();
       fixedAssetService.updateTFixedAsset(newFixedAsset).then((data) => {
-        fixedAssetService.getTFixedAssetsList().then(function (data) {
-          addVS1Data('TFixedAssets', JSON.stringify(data));
+        fixedAssetService.getTFixedAssetsList(25, 1).then(function (data) {
+          addVS1Data('TFixedAssetsList', JSON.stringify(data));
         }).catch(function (err) {
           $(".fullScreenSpin").css("display", "none");
         });
@@ -507,10 +513,10 @@ Template.fixedassetcard.events({
 
     const accumulateDepVal = parseInt($('input#edtAccumulatedDepreciation').val()) || 0;
     const yearEnding = parseInt($('input#edtForYearEnding').val()) || 0;
-    
+
 
     const salvage = parseInt($('input#edtSalvage').val()) || 0;
-    
+
     const startDate = new Date($("#edtDepreciationStartDate").datepicker("getDate"));
     let startYear = startDate.getFullYear();
 
@@ -520,12 +526,12 @@ Template.fixedassetcard.events({
     const enterAmountFlag = templateObject.chkEnterAmount.get();
     const totalDepreciationVal = enterAmountFlag ? (salvage * businessPercent / 100) : accumulateDepVal;
     if (totalDepreciationVal == 0) {
-      Bert.alert( '<strong>WARNING:</strong>Depreciation price is zero ', 'danger','fixed-top', 'fa-frown-o' );
+      // Bert.alert( '<strong>WARNING:</strong>Depreciation price is zero ', 'danger','fixed-top', 'fa-frown-o' );
       templateObject.deprecitationPlans.set([]);
       return;
     }
     if (!enterAmountFlag && yearEnding !== 0 && (yearEnding - startYear - life + 1) < 0) {
-      Bert.alert( '<strong>WARNING:</strong>Depreciation Life is too longer to calculate ', 'danger','fixed-top', 'fa-frown-o' );
+      // Bert.alert( '<strong>WARNING:</strong>Depreciation Life is too longer to calculate ', 'danger','fixed-top', 'fa-frown-o' );
       templateObject.deprecitationPlans.set([]);
       return;
     }
@@ -577,10 +583,10 @@ Template.fixedassetcard.events({
 
     const accumulateDepVal = parseInt($('input#edtAccumulatedDepreciation2').val()) || 0;
     const yearEnding = parseInt($('input#edtForYearEnding2').val()) || 0;
-    
+
 
     const salvage = parseInt($('input#edtSalvage2').val()) || 0;
-    
+
     const startDate = new Date($("#edtDepreciationStartDate").datepicker("getDate"));
     let startYear = startDate.getFullYear();
 
@@ -591,16 +597,15 @@ Template.fixedassetcard.events({
     const totalDepreciationVal = enterAmountFlag ? (salvage * businessPercent / 100) : accumulateDepVal;
 
     if (totalDepreciationVal == 0) {
-      Bert.alert( '<strong>WARNING:</strong>Depreciation price is zero ', 'danger','fixed-top', 'fa-frown-o' );
+      // Bert.alert( '<strong>WARNING:</strong>Depreciation price is zero ', 'danger','fixed-top', 'fa-frown-o' );
       templateObject.deprecitationPlans2.set([]);
       return;
     }
     if (!enterAmountFlag && yearEnding !== 0 && (yearEnding - startYear - life + 1) < 0) {
-      Bert.alert( '<strong>WARNING:</strong>Depreciation Life is too longer to calculate ', 'danger','fixed-top', 'fa-frown-o' );
+      // Bert.alert( '<strong>WARNING:</strong>Depreciation Life is too longer to calculate ', 'danger','fixed-top', 'fa-frown-o' );
       templateObject.deprecitationPlans2.set([]);
       return;
     }
-    console.log('depreciation2', totalDepreciationVal);
     if (!enterAmountFlag && yearEnding !== 0) {
       startYear = yearEnding - life + 1;
     }
